@@ -13,14 +13,19 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
+    timeout-minutes: 30
     strategy:
       matrix:
         # Use these Java versions
         java: [ 25 ]
         distro: [ temurin ]
-        # and run on both Linux and Windows
+        # Build on Linux
         os: [ ubuntu-latest ]
     runs-on: ${{ matrix.os }}
     steps:
@@ -39,7 +44,7 @@ jobs:
       - name: setup gradle
         uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
         with:
-          cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && github.ref != 'refs/heads/dev' }}
+          cache-read-only: ${{ github.ref != 'refs/heads/26.3' }}
 
       - name: make gradle wrapper executable
         if: ${{ runner.os != 'Windows' }}
